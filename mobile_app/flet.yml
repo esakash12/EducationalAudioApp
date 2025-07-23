@@ -1,4 +1,3 @@
-product_name: শ্রুতিপাঠ
-product_description: শিক্ষামূলক অডিও অ্যাপ
-package_name: com.shohag.shrutipaath
-icon: mobile_app/assets/logo.png 
+name: শ্রুতিপাঠ
+description: শিক্ষামূলক অডিও অ্যাপ
+package_name: com.shrutipaath.app
