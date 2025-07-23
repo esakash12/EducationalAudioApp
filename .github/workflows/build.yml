@@ -1,27 +1,29 @@
-ame: Build Flet APK
+name: Build Flet APK
+
 on:
-push:
-branches:
-- main
+  push:
+    branches:
+      - main
+
 jobs:
-build:
-runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  - name: Install Flet
-    run: pip install flet
+      - name: Install Flet
+        run: pip install flet
 
-  - name: Create Service Account Key File
-    run: echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 --decode > mobile_app/service_account.json
+      - name: Create Service Account Key File
+        run: echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 --decode > mobile_app/service_account.json
 
-  - name: Build APK
-    run: flet build apk --app-name "শ্রুতিপাঠ" --app-description "শিক্ষামূলক অডিও অ্যাপ" --package-name "com.shrutipaath.app" --path mobile_app/
+      - name: Build APK
+        run: flet build apk --app-name "শ্রুতিপাঠ" --app-description "শিক্ষামূলক অডিও অ্যাপ" --package-name "com.shrutipaath.app" --path mobile_app/
 
-  - name: Upload APK Artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: shrutipaath-apk
-      path: build/apk/app-release.apk
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: shrutipaath-apk
+          path: build/apk/app-release.apk
