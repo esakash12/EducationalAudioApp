@@ -20,7 +20,7 @@ jobs:
         run: echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 --decode > mobile_app/service_account.json
 
       - name: Build APK
-        run: flet build apk --app-name "শ্রুতিপাঠ" --app-description "শিক্ষামূলক অডিও অ্যাপ" --package-name "com.shrutipaath.app" --path mobile_app/
+        run: flet build apk --path mobile_app/
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
