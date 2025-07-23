@@ -19,11 +19,14 @@ jobs:
       - name: Create Service Account Key File
         run: echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" | base64 --decode > mobile_app/service_account.json
 
-      - name: Build APK from flet.yml
-        run: flet build apk --path mobile_app/
+      # === ফাইনাল এবং নিশ্চিত বিল্ড কমান্ড ===
+      - name: Build APK inside app directory
+        run: |
+          cd mobile_app
+          flet build apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: shrutipaath-apk
-          path: build/apk/app-release.apk
+          path: mobile_app/build/apk/app-release.apk
