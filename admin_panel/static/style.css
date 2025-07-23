@@ -1,0 +1,8 @@
+/* A little custom styling for the admin panel */
+body {
+    background-color: #f8f9fa;
+}
+
+.card-header {
+    font-weight: 500;
+}

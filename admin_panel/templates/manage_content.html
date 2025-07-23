@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}বিষয় ম্যানেজ করুন: {{ subject.subjectName if subject else 'নতুন বিষয়' }}{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('dashboard') }}" class="btn btn-secondary mb-3"><i class="bi bi-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান</a>
+
+{% if subject %}
+<!-- ########## বিষয় এডিট করার সেকশন ########## -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">বিষয়ের বিবরণ আপডেট করুন</h5>
+    </div>
+    <div class="card-body">
+        <form id="subjectForm" action="{{ url_for('edit_content', subject_id=subject.id) }}" method="post">
+            <input type="hidden" name="update_subject" value="true">
+            {% include 'subject_form_fields.html' %}
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle"></i> বিষয় আপডেট করুন</button>
+        </form>
+    </div>
+</div>
+
+<!-- ########## অধ্যায় ম্যানেজমেন্ট সেকশন ########## -->
+<h2 class="mb-3 mt-5">অধ্যায় ম্যানেজমেন্ট: <span class="text-primary">{{ subject.subjectName }}</span></h2>
+
+<!-- নতুন অধ্যায় যোগ করার কার্ড -->
+<div class="card mb-4">
+    <div class="card-header">নতুন অধ্যায় যোগ করুন</div>
+    <div class="card-body">
+        <form action="{{ url_for('edit_content', subject_id=subject.id) }}" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="add_chapter" value="true">
+            <div class="mb-3">
+                <label for="chapterName" class="form-label">নতুন অধ্যায়ের নাম</label>
+                <input type="text" class="form-control" name="chapterName" required>
+            </div>
+            <p><strong>অডিও ফাইল আপলোড করুন:</strong></p>
+            {% if subject.audio_options_template %}
+                <div class="row">
+                {% for option in subject.audio_options_template %}
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">{{ option.label }}</label>
+                        <input type="file" name="{{ option.key }}" class="form-control">
+                    </div>
+                {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-success"><i class="bi bi-plus-circle"></i> নতুন অধ্যায় যোগ করুন</button>
+            {% else %}
+                <p class="text-muted">এই বিষয়ের জন্য কোনো অডিও টেমপ্লেট সেট করা হয়নি। অনুগ্রহ করে প্রথমে বিষয়ের বিবরণ আপডেট করুন।</p>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<!-- বিদ্যমান অধ্যায়সমূহের তালিকা -->
+<div class="card">
+    <div class="card-header">বিদ্যমান অধ্যায়সমূহ</div>
+    <div class="card-body">
+        {% if subject.chapters %}
+        <ul class="list-group">
+            {% for chapter in subject.chapters %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ chapter.chapterName }}
+                <div>
+                    <!-- অধ্যায় এডিট করার বাটন (মডাল ট্রিগার) -->
+                    <button type="button" class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editChapterModal-{{ chapter.index }}">
+                        <i class="bi bi-pencil-square"></i> এডিট
+                    </button>
+                    <!-- অধ্যায় মুছে ফেলার ফর্ম -->
+                    <form action="{{ url_for('edit_content', subject_id=subject.id) }}" method="post" class="d-inline" onsubmit="return confirm('আপনি কি এই অধ্যায়টি মুছে ফেলতে চান?');">
+                        <input type="hidden" name="delete_chapter" value="true">
+                        <input type="hidden" name="chapter_index" value="{{ chapter.index }}">
+                        <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> মুছুন</button>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="text-center text-muted">এই বিষয়ে কোনো অধ্যায় যোগ করা হয়নি।</p>
+        {% endif %}
+    </div>
+</div>
+
+{% else %}
+<!-- ########## নতুন বিষয় যোগ করার ফর্ম ########## -->
+<div class="card">
+    <div class="card-header">নতুন বিষয় যোগ করুন</div>
+    <div class="card-body">
+        <form id="subjectForm" action="{{ url_for('manage_content') }}" method="post">
+             {% include 'subject_form_fields.html' %}
+            <button type="submit" class="btn btn-primary"><i class="bi bi-plus-circle"></i> বিষয় যোগ করুন</button>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+
+<!-- ########## অধ্যায় এডিট করার মডাল ########## -->
+{% if subject and subject.chapters %}
+{% for chapter in subject.chapters %}
+<div class="modal fade" id="editChapterModal-{{ chapter.index }}" tabindex="-1" aria-labelledby="editChapterModalLabel-{{ chapter.index }}" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editChapterModalLabel-{{ chapter.index }}">অধ্যায় এডিট করুন: {{ chapter.chapterName }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{{ url_for('edit_content', subject_id=subject.id) }}" method="post" enctype="multipart/form-data">
+        <div class="modal-body">
+            <input type="hidden" name="update_chapter" value="true">
+            <input type="hidden" name="chapter_index" value="{{ chapter.index }}">
+
+            <div class="mb-3">
+                <label for="chapterName-{{ chapter.index }}" class="form-label">অধ্যায়ের নাম</label>
+                <input type="text" class="form-control" id="chapterName-{{ chapter.index }}" name="chapterName" value="{{ chapter.chapterName }}" required>
+            </div>
+            
+            <hr>
+            <h6>অডিও ফাইল আপডেট করুন (শুধু যেটি পরিবর্তন করতে চান সেটি আপলোড করুন)</h6>
+
+            {% for option in subject.audio_options_template %}
+            <div class="mb-3">
+                <label for="{{ option.key }}-{{ chapter.index }}" class="form-label">{{ option.label }}</label>
+                <input class="form-control" type="file" name="{{ option.key }}" id="{{ option.key }}-{{ chapter.index }}">
+                {% if chapter.options and option.key in chapter.options %}
+                <div class="form-text">বর্তমান ফাইল: <a href="{{ chapter.options[option.key] }}" target="_blank">শুনুন</a></div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">বাতিল</button>
+          <button type="submit" class="btn btn-primary">আপডেট করুন</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+
+
+<script>
+// ডাইনামিক অডিও অপশন ম্যানেজ করার জন্য জাভাস্ক্রিপ্ট (অপরিবর্তিত)
+document.addEventListener('DOMContentLoaded', function () {
+    const container = document.getElementById('audioOptionsContainer');
+    const addOptionBtn = document.getElementById('addAudioOption');
+    const form = document.getElementById('subjectForm');
+    // 'subject' অবজেক্টটি Flask থেকে পাস করা হয়েছে
+    let audioOptions = {{ subject.audio_options_template|tojson|safe if subject else [] }};
+
+    function renderOptions() {
+        container.innerHTML = '';
+        audioOptions.forEach((option, index) => {
+            const div = document.createElement('div');
+            div.className = 'row mb-2 align-items-center';
+            div.innerHTML = `
+                <div class="col-md-5">
+                    <input type="text" class="form-control" placeholder="লেবেল (যেমন: চলিত ভাষা)" value="${option.label}" onchange="updateOption(${index}, 'label', this.value)">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" class="form-control" placeholder="কী (key) (যেমন: cholito_bhasha)" value="${option.key}" onchange="updateOption(${index}, 'key', this.value)">
+                </div>
+                <div class="col-md-2">
+                    <button type="button" class="btn btn-sm btn-danger" onclick="removeOption(${index})"><i class="bi bi-trash"></i></button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+        updateHiddenInput();
+    }
+
+    window.updateOption = function(index, field, value) {
+        audioOptions[index][field] = value;
+        updateHiddenInput();
+    }
+
+    window.removeOption = function(index) {
+        audioOptions.splice(index, 1);
+        renderOptions();
+    }
+
+    addOptionBtn.addEventListener('click', function () {
+        audioOptions.push({ label: '', key: '' });
+        renderOptions();
+    });
+    
+    function updateHiddenInput() {
+        document.getElementById('audioOptionsTemplateInput').value = JSON.stringify(audioOptions);
+    }
+
+    // প্রথমবার লোড হওয়ার সময় অপশনগুলো রেন্ডার করা
+    renderOptions();
+});
+</script>
+{% endblock %}

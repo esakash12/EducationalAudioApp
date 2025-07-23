@@ -1,0 +1,12 @@
+# Mobile App Dependencies
+flet
+pyrebase4
+google-cloud-firestore
+requests
+
+# Admin Panel Dependencies
+Flask
+firebase-admin
+google-cloud-storage
+python-dotenv
+gunicorn

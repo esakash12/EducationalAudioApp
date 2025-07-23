@@ -1,0 +1,26 @@
+<div class="mb-3">
+    <label for="subjectName" class="form-label">বিষয়ের নাম</label>
+    <input type="text" class="form-control" name="subjectName" value="{{ subject.subjectName if subject else '' }}" required>
+</div>
+
+<div class="mb-3">
+    <label for="order" class="form-label">অ্যাপে দেখানোর ক্রম (Order)</label>
+    <input type="number" class="form-control" name="order" value="{{ subject.order if subject else '1' }}" required>
+</div>
+
+<div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" name="isActive" id="isActive" {% if not subject or subject.is_active %}checked{% endif %}>
+    <label class="form-check-label" for="isActive">
+        বিষয়টি অ্যাপে সক্রিয় থাকবে (ব্যবহারকারীরা দেখতে ও ব্যবহার করতে পারবে)
+    </label>
+</div>
+
+<div class="mb-3 card card-body">
+    <label class="form-label fw-bold">এই বিষয়ের জন্য অডিও অপশনগুলো সেট করুন</label>
+    <p class="text-muted small">এখানে লেবেল এবং কী (key) দিন। কী ইংরেজি অক্ষরে এবং কোনো স্পেস ছাড়া হওয়া উচিত। যেমন: `kobi_porichiti`।</p>
+    <div id="audioOptionsContainer">
+        <!-- জাভাস্ক্রিপ্ট দিয়ে ডাইনামিকভাবে ফিল্ড যোগ হবে -->
+    </div>
+    <button type="button" id="addAudioOption" class="btn btn-sm btn-outline-success mt-2 align-self-start"><i class="bi bi-plus-circle"></i> নতুন অপশন যোগ করুন</button>
+    <input type="hidden" name="audioOptionsTemplate" id="audioOptionsTemplateInput">
+</div>

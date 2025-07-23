@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}ড্যাশবোর্ড{% endblock %}
+{% block content %}
+<h2 class="mb-4">ড্যাশবোর্ড</h2>
+
+<div class="card mb-4">
+    <div class="card-header">অ্যাপ নোটিশ ম্যানেজমেন্ট</div>
+    <div class="card-body">
+        <form action="{{ url_for('manage_notices') }}" method="post">
+            <div class="mb-3">
+                <label for="scrollingNotice" class="form-label">স্ক্রলিং নোটিশ টেক্সট</label>
+                <input type="text" class="form-control" id="scrollingNotice" name="scrollingNotice" value="{{ config.scrollingNotice.text if config and 'scrollingNotice' in config else '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">আপডেট করুন</button>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        বিষয় ম্যানেজমেন্ট
+        <a href="{{ url_for('manage_content') }}" class="btn btn-success"><i class="bi bi-plus-circle"></i> নতুন বিষয় যোগ করুন</a>
+    </div>
+    <div class="card-body">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>ক্রম</th>
+                    <th>বিষয়</th>
+                    <th>স্ট্যাটাস</th>
+                    <th>অধ্যায় সংখ্যা</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for subject in subjects %}
+                <tr>
+                    <td>{{ subject.order }}</td>
+                    <td>{{ subject.subjectName }}</td>
+                    <td>
+                        {% if subject.is_active %}
+                            <span class="badge bg-success">সক্রিয়</span>
+                        {% else %}
+                            <span class="badge bg-secondary">শীঘ্রই আসছে</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ subject.chapters|length if subject.chapters else 0 }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_content', subject_id=subject.id) }}" class="btn btn-sm btn-warning"><i class="bi bi-pencil-square"></i> ম্যানেজ</a>
+                        <form action="{{ url_for('delete_subject', subject_id=subject.id) }}" method="post" class="d-inline" onsubmit="return confirm('আপনি কি এই বিষয়টি মুছে ফেলতে চান?');">
+                            <button type="submit" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> মুছুন</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">কোনো বিষয় যোগ করা হয়নি।</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
